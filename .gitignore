@@ -1,8 +1,0 @@
-#Dependecies
-/node_modules
-
-#Files
-package-lock.json
-package.json
-.env
-tsconfig.json
