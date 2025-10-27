@@ -22,13 +22,17 @@ export const createUser = async (userData) => {
 };
 
 export const updateUser = async (userData) => {
-  const res = await fetch(`${BASE_URL}`, {
+  const res = await fetch(BASE_URL, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
   });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al actualizar usuario");
+  }
+
   return res.json();
 };
 
