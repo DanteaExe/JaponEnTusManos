@@ -1,99 +1,79 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSale } from "../../services/sales";
 import { decreaseStock } from "../../services/products";
-
+import "../../styles/Cart.css"; // Creamos CSS aparte
 
 function Cart() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [cart, setCart] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState("Credit Card");
+    const navigate = useNavigate();
+    const [cart, setCart] = useState(() => {
+        const stored = localStorage.getItem("cart");
+        return stored ? JSON.parse(stored) : [];
+    });
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    useEffect(() => {
+        localStorage.setItem("cart", JSON.stringify(cart));
+    }, [cart]);
 
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) setCart(JSON.parse(storedCart));
-  }, []);
-
-  // Guardar carrito
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  const total = cart.reduce((sum, item) => sum + item.Quantity * item.UnitPrice, 0);
-
-  if (!user)
-    return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <h2>Por favor inicia sesión</h2>
-      </div>
+    const total = cart.reduce(
+        (sum, item) => sum + item.Quantity * item.UnitPrice,
+        0
     );
 
-  const handleCheckout = async () => {
-    if (cart.length === 0) return alert("El carrito está vacío");
 
-    try {
-      await createSale({
-        UserID: user.UserId,
-        Total: total,
-        PaymentStatus: "pending",
-        PaymentMethod: paymentMethod,
-        Items: cart.map((item) => ({
-          ProductID: item.ProductId,
-          Quantity: item.Quantity,
-          UnitPrice: item.UnitPrice,
-        })),
-      });
+    const handleCheckout = async () => {
+        if (cart.length === 0) return alert("Carrito vacío");
 
-      // Reducir stock
-      for (let item of cart) {
-        await decreaseStock(item.ProductId, { quantity: item.Quantity });
-      }
+        // Aquí iría la creación de la venta y la reducción de stock
+        // ...
+    };
 
-      alert("Compra realizada correctamente!");
-      setCart([]);
-      localStorage.removeItem("cart");
-      navigate("/UserHome");
-    } catch (err) {
-      console.error(err);
-      alert("Error al realizar la compra");
-    }
-  };
+    const handleClearCart = () => {
+        setCart([]);
+        localStorage.removeItem("cart");
+    };
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Tu carrito</h2>
-      {cart.length === 0 ? (
-        <p>El carrito está vacío</p>
-      ) : (
-        <div>
-          {cart.map((item) => (
-            <div
-              key={item.ProductId}
-              style={{ display: "flex", justifyContent: "space-between", margin: "10px 0" }}
-            >
-              <div>{item.ProductName} x {item.Quantity}</div>
-              <div>${item.Quantity * item.UnitPrice}</div>
+
+    if (cart.length === 0)
+        return (
+            <div className="cart-empty">
+                <h2>Tu carrito está vacío</h2>
+                <p>Agrega productos desde la tienda.</p>
             </div>
-          ))}
-          <h3>Total: ${total}</h3>
-          <div>
-            <label>Método de pago: </label>
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-              <option>Credit Card</option>
-              <option>PayPal</option>
-            </select>
-          </div>
-          <button onClick={handleCheckout} style={{ marginTop: "20px" }}>
-            Pagar
-          </button>
+        );
+
+    return (
+        <div className="cart-container">
+            <h2>Tu Carrito</h2>
+            <div className="cart-items">
+                {cart.map((item) => (
+                    <div className="cart-item" key={item.ProductID}>
+                        <div className="item-info">
+                            <img src={item.ImageURL} alt={item.ProductName} />
+                            <div>
+                                <h4>{item.ProductName}</h4>
+                                <p>Cantidad: {item.Quantity}</p>
+                                <p>Precio unitario: ${item.UnitPrice}</p>
+                            </div>
+                        </div>
+                        <div className="item-total">${item.Quantity * item.UnitPrice}</div>
+                    </div>
+                ))}
+            </div>
+            <h3 className="cart-total">Total: ${total.toFixed(2)}</h3>
+            <button className="checkout-btn" onClick={handleCheckout}>
+                Pagar
+            </button>
+
+            <button
+                className="clear-btn"
+                onClick={handleClearCart}
+            >
+                Vaciar carrito
+            </button>
+
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default Cart;

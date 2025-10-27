@@ -33,20 +33,21 @@ function UserHome() {
     fetchProducts();
   }, []);
 
-  const handleBuy = (product) => {
-    setCart((prevCart) => {
-      const existing = prevCart.find(p => p.ProductId === product.ProductId);
-      if (existing) {
-        return prevCart.map(p =>
-          p.ProductId === product.ProductId
-            ? { ...p, Quantity: p.Quantity + 1 }
-            : p
-        );
-      } else {
-        return [...prevCart, { ...product, Quantity: 1, UnitPrice: product.Price }];
-      }
-    });
-  };
+const handleBuy = (product) => {
+  setCart(prevCart => {
+    const existing = prevCart.find(p => p.ProductID === product.ProductID);
+    if (existing) {
+      return prevCart.map(p =>
+        p.ProductID === product.ProductID 
+          ? { ...p, Quantity: p.Quantity + 1 }
+          : p
+      );
+    } else {
+      return [...prevCart, { ...product, Quantity: 1, UnitPrice: product.Price }];
+    }
+  });
+};
+
 
   if (!user) return <p style={{ textAlign: "center", marginTop: "50px" }}>Por favor inicia sesión</p>;
 
@@ -56,7 +57,7 @@ function UserHome() {
       <div className="products-container">
         {products.length > 0 ? (
           products.map(p => (
-            <ProductCard key={p.ProductId} product={p} onBuy={handleBuy} />
+            <ProductCard key={p.ProductID} product={p} onBuy={handleBuy} />
           ))
         ) : (
           <p style={{ color: "gray", marginTop: "50px" }}>No hay productos disponibles</p>
