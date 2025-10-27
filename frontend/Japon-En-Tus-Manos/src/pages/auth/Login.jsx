@@ -17,7 +17,7 @@ function Login() {
             let data;
             if (loginType === "admin") {
                 data = await loginAdmin({ Name: identifier, Password: password });
-                navigate("/admin");
+                navigate("/adminDashboard");
             } else {
                 data = await loginUser({ Email: identifier, Password: password });
                 localStorage.setItem("user", JSON.stringify(data.user));

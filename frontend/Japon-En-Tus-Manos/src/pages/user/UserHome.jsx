@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getProducts } from "../../services/products";
+import {getSalesByUserId} from "../../services/sales"
 import ProductCard from "../../components/ProductCard";
 import Navbar from "../../components/Navbar";
 import "../../styles/ProductCard.css";
 import { updateUser } from "../../services/users";
 import EditProfileModal from "../../components/EditProfileModal";
+import "../../styles/userSales.css"
 
 function UserHome() {
   const [user, setUser] = useState(null);
@@ -20,7 +22,7 @@ function UserHome() {
     Location: "",
     PasswordHash: "",
   });
-
+  const [userSales, setUserSales] = useState([]);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -35,6 +37,22 @@ function UserHome() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    const fetchUserSales = async () => {
+      if (user) {
+        try {
+          const data = await getSalesByUserId(user.UserID);
+          setUserSales(data);
+        } catch (err) {
+          console.error("Error al cargar tus compras:", err);
+        }
+      }
+    };
+
+    fetchUserSales();
+  }, [user]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +79,7 @@ function UserHome() {
       alert("Error al actualizar usuario");
     }
   };
-  
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
@@ -83,20 +101,20 @@ function UserHome() {
     fetchProducts();
   }, []);
 
-const handleBuy = (product) => {
-  setCart(prevCart => {
-    const existing = prevCart.find(p => p.ProductID === product.ProductID);
-    if (existing) {
-      return prevCart.map(p =>
-        p.ProductID === product.ProductID 
-          ? { ...p, Quantity: p.Quantity + 1 }
-          : p
-      );
-    } else {
-      return [...prevCart, { ...product, Quantity: 1, UnitPrice: product.Price }];
-    }
-  });
-};
+  const handleBuy = (product) => {
+    setCart(prevCart => {
+      const existing = prevCart.find(p => p.ProductID === product.ProductID);
+      if (existing) {
+        return prevCart.map(p =>
+          p.ProductID === product.ProductID
+            ? { ...p, Quantity: p.Quantity + 1 }
+            : p
+        );
+      } else {
+        return [...prevCart, { ...product, Quantity: 1, UnitPrice: product.Price }];
+      }
+    });
+  };
 
 
   if (!user) return <p style={{ textAlign: "center", marginTop: "50px" }}>Por favor inicia sesión</p>;
@@ -131,7 +149,7 @@ const handleBuy = (product) => {
           Editar Perfil ✏️
         </button>
       </div>
- {/* 🧾 Modal */}
+      {/* 🧾 Modal */}
       {editing && (
         <EditProfileModal
           formData={formData}
@@ -140,6 +158,40 @@ const handleBuy = (product) => {
           onClose={() => setEditing(false)}
         />
       )}
+
+      <div>
+        <h2 style={{ textAlign: "center", color: "#b30026", marginTop: "30px" }}>
+          Mis Compras
+        </h2>
+        {userSales.length > 0 ? (
+          <div className="user-sales-section">
+            {userSales.map(sale => (
+              <div key={sale.SaleID} className="user-sale-card">
+                <h3>Compra #{sale.SaleID}</h3>
+                <div className="user-sale-info">
+                  <p>Total: ${sale.Total}</p>
+                  <p>Estado: {sale.PaymentStatus}</p>
+                  <p>Método: {sale.PaymentMethod}</p>
+                </div>
+{sale.Items && sale.Items.map(item => {
+  const prod = products.find(p => p.ProductID === item.ProductID);
+  return (
+    <div key={item.SaleItemID} className="user-sale-item">
+      {prod ? prod.ProductName : `Producto ${item.ProductID}`} x {item.Quantity} - ${item.UnitPrice}
+    </div>
+  );
+})}
+
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ textAlign: "center", marginTop: "20px", color: "gray" }}>
+            No tienes compras todavía
+          </p>
+        )}
+      </div>
+
     </div>
   );
 }
