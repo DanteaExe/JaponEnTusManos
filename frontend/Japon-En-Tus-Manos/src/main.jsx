@@ -1,16 +1,32 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home.jsx";
-import Login from "./pages/Login.jsx";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <BrowserRouter>
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import UserHome from "./pages/user/UserHome";
+import UserProfile from "./pages/user/Profile";
+import Cart from "./pages/user/Cart";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+
+function Main() {
+  return (
+    <Router>
       <Routes>
-        <Route path="/" element={<Home />} />      {/* Home */}
-        <Route path="/login" element={<Login />} /> {/* Login */}
+        {/* Auth */}
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Usuario */}
+        <Route path="/UserHome" element={<UserHome />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/user/cart" element={<Cart />} />
+
+        {/* Admin */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
       </Routes>
-    </BrowserRouter>
-  </StrictMode>
-);
+    </Router>
+  );
+}
+
+export default Main;

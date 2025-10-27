@@ -39,7 +39,6 @@ export const deleteProduct = async (productId) => {
   return res.json();
 };
 
-// Disminuir stock de un producto
 export const decreaseStock = async (productId, quantity) => {
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "PUT",

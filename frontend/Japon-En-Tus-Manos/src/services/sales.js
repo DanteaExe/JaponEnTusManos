@@ -15,13 +15,18 @@ export const getSalesByUserId = async (userId) => {
   return res.json();
 };
 
-export const createSale = async (saleData) => {
-  const res = await fetch(`${BASE_URL}`, {
+export const createSale = async ({ UserID, Total, PaymentStatus, PaymentMethod, Items }) => {
+  const res = await fetch(BASE_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(saleData),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ UserID, Total, PaymentStatus, PaymentMethod, Items }),
   });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al crear venta");
+  }
+
   return res.json();
+
 };
