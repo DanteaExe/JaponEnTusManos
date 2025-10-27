@@ -39,6 +39,7 @@ export const deleteProduct = async (productId) => {
   return res.json();
 };
 
+//DO NOT REMOVE THIS FUNCTION, IF SO...IT DOES NOT WORK THE PROJECT AJAJAJAJ
 export const decreaseStock = async (productId, quantity) => {
   const res = await fetch(`${BASE_URL}/${productId}`, {
     method: "PUT",

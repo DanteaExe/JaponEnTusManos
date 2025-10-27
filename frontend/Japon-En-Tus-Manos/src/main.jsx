@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import { useEffect } from 'react';
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import UserHome from "./pages/user/UserHome";
@@ -9,6 +9,11 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 
 function Main() {
+
+    useEffect(() => {
+    localStorage.clear();
+  }, []);
+
   return (
     <Router>
       <Routes>

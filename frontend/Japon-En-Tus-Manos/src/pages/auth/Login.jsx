@@ -20,10 +20,9 @@ function Login() {
                 navigate("/admin");
             } else {
                 data = await loginUser({ Email: identifier, Password: password });
+                localStorage.setItem("user", JSON.stringify(data.user));
                 navigate("/UserHome");
             }
-
-            localStorage.setItem("user", JSON.stringify(data));
         } catch (err) {
             alert(err.message);
         }
