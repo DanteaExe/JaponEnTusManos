@@ -38,8 +38,14 @@ export class UserService {
     async update(user: User): Promise<User | null> {
         let hashedPassword = user.PasswordHash;
     
-        if (user.PasswordHash && user.PasswordHash.trim() !== "") {
-            hashedPassword = await EncryptionHandler.hashPassword(user.PasswordHash);
+        if (!hashedPassword || hashedPassword.trim() === "") {
+            const [rows]: any = await pool.query(
+                "SELECT PasswordHash FROM User WHERE UserID = ?",
+                [user.UserID]
+            );
+            hashedPassword = rows[0].PasswordHash;
+        } else {
+            hashedPassword = await EncryptionHandler.hashPassword(hashedPassword);
         }
     
         const [result]: any = await pool.query(
@@ -54,6 +60,7 @@ export class UserService {
     
         return User.fromDB(rows[0]);
     }
+
 
 
     async login(Email: string, Password: string): Promise<User | null> {
